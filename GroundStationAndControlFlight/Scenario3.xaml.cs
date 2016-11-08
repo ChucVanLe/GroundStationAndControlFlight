@@ -4899,9 +4899,13 @@ namespace PivotCS
 
             tab_setting.Children.Remove(tblock_ConnectDivice);
             tab_setting.Children.Add(tblock_ConnectDivice);
+            try
+            {
+                lbox_postion_lon.Width = screenWidth - 44 - 1202;
+                bt_Clear_Path.Width = screenWidth - 44 - 1200;
+            }
+            catch { show_alert("please zoom screen"); }
 
-            lbox_postion_lon.Width = screenWidth - 44 - 1202;
-            bt_Clear_Path.Width = screenWidth - 44 - 1200;
         }
 
         //Vẽ path when user tap on maps
