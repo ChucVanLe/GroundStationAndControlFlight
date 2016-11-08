@@ -158,10 +158,10 @@ namespace PivotCS
             //test lat, lon to utm--ok 29/10/2016
             //check at http://www.rcn.montana.edu/resources/converter.aspx
             //check at https://www.uwgb.edu/dutchs/UsefulData/ConvertUTMNoOZ.HTM
-            double UTMN = 0, UTME = 0, gps_lat, gps_lon;
-            string utmZ;
-            char utmBand;
-            LatLongtoUTM(10.782199, 106.650370, out UTMN, out UTME, out utmZ, out utmBand);//ok
+            //double UTMN = 0, UTME = 0, gps_lat, gps_lon;
+            //string utmZ;
+            //char utmBand;
+            //LatLongtoUTM(10.782199, 106.650370, out UTMN, out UTME, out utmZ, out utmBand);//ok
             //utm to lat, lon
             //ToLatLon_v2(UTMN, UTME, utmZ, out gps_lat, out gps_lon);
             //ok
@@ -169,22 +169,7 @@ namespace PivotCS
             //ToLatLon(7042000, 510000, "32V");
             //test();
 
-            //Transforming Latitude/ Longitude to UTM:
-            Geographic geo = new Geographic(8.12345, 50.56789);
-            UTM utm = (UTM)geo;
-            double east = utm.East;
-            double north = utm.North;
-            int zone = utm.Zone;
-            string band = utm.Band;
 
-            //Transforming MGRS/UTMRef to Latitude/Longitude:
-            MGRS mgrs = new MGRS(48, band, "MA", UTME, UTMN);
-            //UTM utm1 = new UTM(zone, band, east, north);
-            //UTM utm1 = new UTM(Convert.ToInt32(utmZ), utmBand.ToString(), UTME, UTMN);
-            UTM utm1 = new UTM(32, "V", 510000, 7042000);
-            Geographic geo1 = (Geographic)utm1;
-            double lon = geo1.Longitude;
-            double lat = geo1.Latitude;
 
         }
 
@@ -320,7 +305,9 @@ namespace PivotCS
 
             //draw path when user tap on maps
             //Draw_Path_When_Tap_On_Map(tappedGeoPosition.Latitude, tappedGeoPosition.Longitude, tappedGeoPosition.Altitude);
-            Draw_Path_When_Tap_On_Map_using_spline(tappedGeoPosition.Latitude, tappedGeoPosition.Longitude, tappedGeoPosition.Altitude);
+            //Draw_Path_When_Tap_On_Map_using_spline(tappedGeoPosition.Latitude, tappedGeoPosition.Longitude, tappedGeoPosition.Altitude);
+            //draw trajectore hexagon
+            draw_hexagon_when_tap_on_map(tappedGeoPosition.Latitude, tappedGeoPosition.Longitude, Math.PI / 3, 100);
         }
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>
@@ -5716,7 +5703,78 @@ namespace PivotCS
             return LetterDesignator;
         }
 
+        public void draw_hexagon_when_tap_on_map(double lat_tap, double lon_tap, double yaw_when_tap, double lenght_edge)
+        {
+            //Transforming Latitude/ Longitude to UTM:
+            Geographic geography_tap = new Geographic(lon_tap, lat_tap);
+            UTM utm_tap = (UTM)geography_tap;
+            double east_tap = utm_tap.East;
+            double north_tap = utm_tap.North;
+            int zone_tap = utm_tap.Zone;
+            string band_tap = utm_tap.Band;
+            double[,] utm_hexa_point = new double[6, 2], geo_hexa_point = new double[6, 2];
+            utm_hexa_point[0, 0] = east_tap;
+            utm_hexa_point[0, 1] = north_tap;
+            for (int i = 1; i < 6; i++)
+            {
+                utm_hexa_point[i, 0] = utm_hexa_point[i - 1, 0] + lenght_edge * Math.Sin(yaw_when_tap + (i - 1) * Math.PI / 3);
+                utm_hexa_point[i, 1] = utm_hexa_point[i - 1, 1] + lenght_edge * Math.Cos(yaw_when_tap + (i - 1) * Math.PI / 3);
+            }
+            List<BasicGeoposition> positions_hexa_trajectory = new List<BasicGeoposition>();
+            for (int i = 0; i < 6; i++)
+            {
+                UTM utn_to_geo = new UTM(zone_tap, band_tap, utm_hexa_point[i, 0], utm_hexa_point[i, 1]);
 
+                Geographic geo_from_utm = (Geographic)utn_to_geo;
+
+                geo_hexa_point[i, 0] = geo_from_utm.Latitude;
+                geo_hexa_point[i, 1] = geo_from_utm.Longitude;
+                //add maps icon
+                MapIcon icon_tap_on_map = new MapIcon();
+                icon_tap_on_map.Location = new Geopoint(new BasicGeoposition()
+                {
+                    Latitude = geo_from_utm.Latitude,
+                    Longitude = geo_from_utm.Longitude,
+                });
+                icon_tap_on_map.NormalizedAnchorPoint = new Point(0.5, 1.0);
+                icon_tap_on_map.Title = "Pos " + (++number_of_tap).ToString();
+                myMap.MapElements.Add(icon_tap_on_map);
+                //add line
+                positions_hexa_trajectory.Add(new BasicGeoposition() { Latitude = geo_from_utm.Latitude,
+                    Longitude = geo_from_utm.Longitude});   //<== this
+            }
+            //add first point to have hexa gon
+            positions_hexa_trajectory.Add(new BasicGeoposition()
+            {
+                Latitude = geo_hexa_point[0, 0],
+                Longitude = geo_hexa_point[0, 1]
+            });
+            MapPolyline lineToRmove = new Windows.UI.Xaml.Controls.Maps.MapPolyline();
+
+            lineToRmove.Path = new Geopath(positions_hexa_trajectory);
+
+            lineToRmove.StrokeColor = Colors.BlueViolet;
+            lineToRmove.StrokeThickness = 2;
+            lineToRmove.StrokeDashed = true;//nét dut
+
+            //myMap.MapElements.Remove(mapPolyline);
+            myMap.MapElements.Add(lineToRmove);
+            //Geographic geo = new Geographic(8.12345, 50.56789);
+            //UTM utm = (UTM)geo;
+            //double east = utm.East;
+            //double north = utm.North;
+            //int zone = utm.Zone;
+            //string band = utm.Band;
+
+            //Transforming MGRS/UTMRef to Latitude/Longitude:
+
+            //UTM utm1 = new UTM(zone, band, east, north);
+            //UTM utm1 = new UTM(Convert.ToInt32(utmZ), utmBand.ToString(), UTME, UTMN);
+            //UTM utm1 = new UTM(32, "V", 510000, 7042000);
+            //Geographic geo1 = (Geographic)utm1;
+            //double lon = geo1.Longitude;
+            //double lat = geo1.Latitude;
+        }
         //end of class
     }
 
