@@ -300,8 +300,8 @@ namespace PivotCS
             tblock_LatAndLon.Text = Math.Round(tappedGeoPosition.Latitude, 8).ToString()//Lấy 8 chữ số thập phân
                                     + ", " + Math.Round(tappedGeoPosition.Longitude, 8).ToString();//Lấy 8 chữ số thập phân
             //NotifyUser(status, NotifyType.StatusMessage);
-            lbox_postion_lat.Items.Add(Math.Round(tappedGeoPosition.Latitude, 8).ToString());
-            lbox_postion_lon.Items.Add(Math.Round(tappedGeoPosition.Longitude, 8).ToString());
+            //lbox_postion_lat.Items.Add(Math.Round(tappedGeoPosition.Latitude, 8).ToString());
+            //lbox_postion_lon.Items.Add(Math.Round(tappedGeoPosition.Longitude, 8).ToString());
 
             //draw path when user tap on maps
             //Draw_Path_When_Tap_On_Map(tappedGeoPosition.Latitude, tappedGeoPosition.Longitude, tappedGeoPosition.Altitude);
@@ -5741,7 +5741,10 @@ namespace PivotCS
                 myMap.MapElements.Add(icon_tap_on_map);
                 //add line
                 positions_hexa_trajectory.Add(new BasicGeoposition() { Latitude = geo_from_utm.Latitude,
-                    Longitude = geo_from_utm.Longitude});   //<== this
+                    Longitude = geo_from_utm.Longitude});
+                //add to upload path
+                lbox_postion_lat.Items.Add(Math.Round(geo_from_utm.Latitude, 8).ToString());
+                lbox_postion_lon.Items.Add(Math.Round(geo_from_utm.Longitude, 8).ToString());
             }
             //add first point to have hexa gon
             positions_hexa_trajectory.Add(new BasicGeoposition()
@@ -5759,6 +5762,7 @@ namespace PivotCS
 
             //myMap.MapElements.Remove(mapPolyline);
             myMap.MapElements.Add(lineToRmove);
+            myMap.ZoomLevel = 17;
             //Geographic geo = new Geographic(8.12345, 50.56789);
             //UTM utm = (UTM)geo;
             //double east = utm.East;
