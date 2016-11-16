@@ -4432,7 +4432,11 @@ namespace PivotCS
             positions_path_tap_on_map.Clear();
             myMap.MapElements.Clear();
             number_of_tap = 0;
-
+            for (int index_list_lon_lat = 0; index_list_lon_lat < utm_hexa_point.Length / 2; index_list_lon_lat++)
+            {
+                utm_hexa_point[index_list_lon_lat, 0] = 0;//east_tap
+                utm_hexa_point[index_list_lon_lat, 1] = 0;//north_tap
+            }
         }
 
         //variable for tran and receive reply from flight
@@ -4691,11 +4695,17 @@ namespace PivotCS
                     // Create the DataWriter object and attach to OutputStream
                     dataWriteObject = new DataWriter(serialPort.OutputStream);
                     string temp_lat_lon = "";
-                    for (int index_list_lon_lat = 0; index_list_lon_lat < lbox_postion_lat.Items.Count; index_list_lon_lat++)
-                    {
-                        temp_lat_lon += 'v' + lbox_postion_lat.Items[index_list_lon_lat].ToString()
-                                        + 'k' + lbox_postion_lon.Items[index_list_lon_lat].ToString();
-                    }
+                    //for (int index_list_lon_lat = 0; index_list_lon_lat < lbox_postion_lat.Items.Count; index_list_lon_lat++)
+                    //{
+                    //    temp_lat_lon += 'v' + lbox_postion_lat.Items[index_list_lon_lat].ToString()
+                    //                    + 'k' + lbox_postion_lon.Items[index_list_lon_lat].ToString();
+                    //}
+                    if (0 != utm_hexa_point[5, 0])
+                        for (int index_list_lon_lat = 0; index_list_lon_lat < utm_hexa_point.Length / 2; index_list_lon_lat++)
+                        {
+                            temp_lat_lon += 'v' + Math.Round(utm_hexa_point[index_list_lon_lat, 0], 1).ToString()//east_tap
+                                            + 'k' + Math.Round(utm_hexa_point[index_list_lon_lat, 1], 1).ToString();//north_tap
+                        }
                     Int32 checksum = 0;
                     data_need_tran = "4" + temp_lat_lon + "v,";
                     for (int i = 0; i < data_need_tran.Length; i++)
@@ -4990,7 +5000,7 @@ namespace PivotCS
 
             positions_path_tap_on_map.Add(new BasicGeoposition() { Latitude = lat, Longitude = lon });//to turn on auto zoom mode
             double[] xi_lat = new double[positions_path_tap_on_map.Count], yi_lon = new double[positions_path_tap_on_map.Count];
-            for(int i = 0; i < positions_path_tap_on_map.Count; i++)
+            for (int i = 0; i < positions_path_tap_on_map.Count; i++)
             {
                 xi_lat[i] = positions_path_tap_on_map[i].Latitude;
                 yi_lon[i] = positions_path_tap_on_map[i].Longitude;
@@ -5135,7 +5145,7 @@ namespace PivotCS
                 y1M = a0 * x1M + (b0 - y0);
                 y2M = a0 * x2M + (b0 - y0);
                 //reject 1 point using angle
-                if(angleFromCoordinate(x0, y0, x1M, y1M) == Convert.ToDouble(Data.Yaw) / 10)//receive x1M, y1M
+                if (angleFromCoordinate(x0, y0, x1M, y1M) == Convert.ToDouble(Data.Yaw) / 10)//receive x1M, y1M
                 {
                     MapPolyline lineToRmove = new Windows.UI.Xaml.Controls.Maps.MapPolyline();
 
@@ -5482,8 +5492,8 @@ namespace PivotCS
             double xj, yj;
             for (int i = 0; i < xi.Length - 1; i++)
             {
-                if(xi[i+1] >= xi[i])
-                    for(xj = xi[i]; xj < xi[i+1]; xj += (xi[i+1] - xi[i]) / 100)
+                if (xi[i + 1] >= xi[i])
+                    for (xj = xi[i]; xj < xi[i + 1]; xj += (xi[i + 1] - xi[i]) / 100)
                     {
                         yj = yi[i] + bj[i, 0] * (xj - xi[i]) + cj[i, 0] * (xj - xi[i]) * (xj - xi[i]) +
                             dj[i, 0] * Math.Pow((xj - xi[i]), 3);
@@ -5702,7 +5712,14 @@ namespace PivotCS
             else LetterDesignator = 'Z'; //Latitude is outside the UTM limits
             return LetterDesignator;
         }
-
+        double[,] utm_hexa_point = new double[6, 2];//contain six pos utm path
+        /// <summary>
+        /// draw path hexagon, first position is flight' position
+        /// </summary>
+        /// <param name="lat_tap"></param>
+        /// <param name="lon_tap"></param>
+        /// <param name="yaw_when_tap"></param>
+        /// <param name="lenght_edge"></param>
         public void draw_hexagon_when_tap_on_map(double lat_tap, double lon_tap, double yaw_when_tap, double lenght_edge)
         {
             //Transforming Latitude/ Longitude to UTM:
@@ -5712,7 +5729,7 @@ namespace PivotCS
             double north_tap = utm_tap.North;
             int zone_tap = utm_tap.Zone;
             string band_tap = utm_tap.Band;
-            double[,] utm_hexa_point = new double[6, 2], geo_hexa_point = new double[6, 2];
+            double[,] geo_hexa_point = new double[6, 2];
             utm_hexa_point[0, 0] = east_tap;
             utm_hexa_point[0, 1] = north_tap;
             for (int i = 1; i < 6; i++)
@@ -5740,8 +5757,11 @@ namespace PivotCS
                 icon_tap_on_map.Title = "Pos " + (++number_of_tap).ToString();
                 myMap.MapElements.Add(icon_tap_on_map);
                 //add line
-                positions_hexa_trajectory.Add(new BasicGeoposition() { Latitude = geo_from_utm.Latitude,
-                    Longitude = geo_from_utm.Longitude});
+                positions_hexa_trajectory.Add(new BasicGeoposition()
+                {
+                    Latitude = geo_from_utm.Latitude,
+                    Longitude = geo_from_utm.Longitude
+                });
                 //add to upload path
                 lbox_postion_lat.Items.Add(Math.Round(geo_from_utm.Latitude, 8).ToString());
                 lbox_postion_lon.Items.Add(Math.Round(geo_from_utm.Longitude, 8).ToString());
@@ -5762,7 +5782,15 @@ namespace PivotCS
 
             //myMap.MapElements.Remove(mapPolyline);
             myMap.MapElements.Add(lineToRmove);
-            myMap.ZoomLevel = 17;
+            myMap.Center =
+               new Geopoint(new BasicGeoposition()
+               {
+                   //Geopoint for Seattle San Bay Tan Son Nhat:   dLatDentination, dLonDentination
+
+                   Latitude = lat_tap,
+                   Longitude = lon_tap
+               });
+            myMap.ZoomLevel = 16;
             //Geographic geo = new Geographic(8.12345, 50.56789);
             //UTM utm = (UTM)geo;
             //double east = utm.East;
