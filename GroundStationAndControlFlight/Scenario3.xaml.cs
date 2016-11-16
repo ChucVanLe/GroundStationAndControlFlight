@@ -191,7 +191,7 @@ namespace PivotCS
         {
             Dis_Setup_MapOffline();
             //C: \Users\VANCHUC - PC\AppData\Local\Packages\54fa2b45 - b04f - 4b40 - 809b - 7556c7ed473f_pq4mhrhe9d4xp\LocalState
-            //Save_Setup();
+            Save_Setup();
 
             Dis_Setup_UART();
 
@@ -248,19 +248,51 @@ namespace PivotCS
 
         }
 
+        string fileName = "";
+        Windows.Storage.StorageFile file_user_save_picker, sf_user_savePicker_and_permission;
+        //FileSavePicker savePicker = new FileSavePicker();
         /// <summary> check 02/03/16: OK
         /// Khoi tao bien cho ham save and write header
         /// </summary>
         public async void Save_Setup()
         {
-            storageFolder =
-            Windows.Storage.ApplicationData.Current.LocalFolder;
-            sampleFile =
-                await storageFolder.CreateFileAsync("dataReceive.txt",
-                    Windows.Storage.CreationCollisionOption.ReplaceExisting);
-            //write header
-            SaveTotxt("Data from sensor Ublox GPS + compass, baud rate: 57600" + '\n');
-            SaveTotxt("Test data: 2/3/2016, Location: ... " + '\n');
+            fileName = DateTime.Now.ToString("M / d / yyyy hh mm ss tt") + ".txt";
+            //c1
+            var savePicker = new Windows.Storage.Pickers.FileSavePicker();
+            savePicker.SuggestedStartLocation =
+                Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+            // Dropdown of file types the user can save the file as
+            savePicker.FileTypeChoices.Add("Plain Text", new List<string>() { ".txt" });
+            // Default file name if the user does not type one in or select a file to replace
+            savePicker.SuggestedFileName = fileName;
+            file_user_save_picker = await savePicker.PickSaveFileAsync();
+            // Prevent updates to the remote version of the file until
+            // we finish making changes and call CompleteUpdatesAsync.
+            Windows.Storage.CachedFileManager.DeferUpdates(file_user_save_picker);
+            // write to file
+            //for(int test = 0; test < 10000; test++)
+            //await Windows.Storage.FileIO.AppendTextAsync(file_user_save_picker, "Data from sensor Ublox GPS + compass, baud rate: 57600" + '\n');
+            SaveTotxt_use_savePicker("Data from sensor Ublox GPS + compass, baud rate: 57600" + '\n');
+            SaveTotxt_use_savePicker("Test data: 11/10/2016, Location: ... " + '\n');
+        }
+
+        /// <summary>
+        /// save file .txt
+        /// </summary>
+        /// <param name="content"></param>
+        public async void SaveTotxt_use_savePicker(string content)
+        {
+            try
+            {
+                //Windows.Storage.CachedFileManager.DeferUpdates(file_user_save_picker);
+                await Windows.Storage.FileIO.AppendTextAsync(file_user_save_picker, content);
+
+            }
+            catch (Exception ex)
+            {
+                tblock_ZoomLevel.Text = ex.Message;
+                //file_user_save_picker = await savePicker.PickSaveFileAsync();
+            }
         }
         //***************End of class set up********************************************
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1098,7 +1130,8 @@ namespace PivotCS
         //Chú ý muốn nhận cổng com của cường thì phải cài driver cho nó
 
         //******************************************************************************
-
+        string data_from_serial_to_save_file = "";
+        int how_many_line_save_1_time = 0;
         //xử lý data không dùng timer
         //optimize in 14/5/2016
         public void processDataToDrawTrajactory()
@@ -1108,6 +1141,19 @@ namespace PivotCS
                 if (strDataFromSerialPort.IndexOf('\r') != -1)//Bắt ký tự '\r'
                 {//data from GPS, IMU
                     Data.Temp = FindTextInStr(strDataFromSerialPort, '\r');
+                    //save file-------------------------------------
+                    //c1
+                    if (200 == how_many_line_save_1_time)
+                    {
+                        how_many_line_save_1_time = 0;
+                        SaveTotxt_use_savePicker(data_from_serial_to_save_file);
+                        data_from_serial_to_save_file = "";
+                    }
+                    else
+                    {
+                        how_many_line_save_1_time++;
+                        data_from_serial_to_save_file += Data.Temp + '\r';
+                    }
                     processDataFull();
                 }
                 else//reply from flight when user tran parameter
@@ -1118,6 +1164,8 @@ namespace PivotCS
                             && (6 == strDataFromSerialPort[strDataFromSerialPort.IndexOf('@') - 1]))//receive ACK
                             send_data_success = true;
                         else send_data_success = false;
+                        //test save file, chack tran kp, ki, kd
+                        SaveTotxt_use_savePicker(strDataFromSerialPort + '\r' + '\n');
                         //remove reply from flight to receive data from GPS, IMU
                         strDataFromSerialPort = strDataFromSerialPort.Remove(0, strDataFromSerialPort.IndexOf('@') + 1);
                     }
