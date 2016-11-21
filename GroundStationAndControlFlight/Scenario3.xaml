@@ -228,7 +228,9 @@
                 <PivotItem Header="Display" Margin="0, -15, 0, 0">
                     <StackPanel>
                         <Grid x:Name="tab_display">
-                            <Maps:MapControl x:Name="myMap" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" Height="730" Width="1366">
+                            <Maps:MapControl x:Name="myMap" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" 
+                                             MapServiceToken="dl9oM3XQro1Jno1ettaK~BX6_PnzJLtUkcvjizgMqwQ~Ar-DnMWqNeB_N29p_NaOGCg_r_rCvwfwGc-W7ey8r7EKJf-MCjmrLaNUQjMfEpXc" 
+                                             Height="730" Width="1366">
                             </Maps:MapControl>
                             <!--Adjust-->
 

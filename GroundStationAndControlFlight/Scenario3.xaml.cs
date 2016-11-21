@@ -339,7 +339,10 @@ namespace PivotCS
             //Draw_Path_When_Tap_On_Map(tappedGeoPosition.Latitude, tappedGeoPosition.Longitude, tappedGeoPosition.Altitude);
             //Draw_Path_When_Tap_On_Map_using_spline(tappedGeoPosition.Latitude, tappedGeoPosition.Longitude, tappedGeoPosition.Altitude);
             //draw trajectore hexagon
-            draw_hexagon_when_tap_on_map(tappedGeoPosition.Latitude, tappedGeoPosition.Longitude, Math.PI / 3, 100);
+            //draw_hexagon_when_tap_on_map(tappedGeoPosition.Latitude, tappedGeoPosition.Longitude, Math.PI / 3, 100);
+
+            //draw_hexagon_when_tap_on_map(tappedGeoPosition.Latitude, tappedGeoPosition.Longitude, (Convert.ToDouble(Data.Yaw) / 10) * Math.PI / 180, 100);
+            draw_hexagon_when_tap_on_map(dLatGol, dLonGol, (Convert.ToDouble(Data.Yaw) / 10) * Math.PI / 180, 100);
         }
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>
