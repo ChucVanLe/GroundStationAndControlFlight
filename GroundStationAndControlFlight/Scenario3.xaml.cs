@@ -1302,7 +1302,7 @@ namespace PivotCS
                         ShowSpeed_Alt_Position();
 
                         if (Data.Speed != null)
-                            if ((Convert.ToDouble(Data.Speed) < 100) && (Convert.ToDouble(Data.Pitch) > 300))
+                            if ((Convert.ToDouble(Data.Speed) < 30) && (Convert.ToDouble(Data.Pitch) > 300))
                             {
                                 try
                                 {
