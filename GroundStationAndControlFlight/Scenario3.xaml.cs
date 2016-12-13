@@ -76,6 +76,7 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Maps;
+using Windows.Services.Maps;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
@@ -152,6 +153,7 @@ namespace PivotCS
             this.DataContext = this;
             Dis_Setup();
             init_timer_check_reply_from_flight_no_start(1000);
+            
             //test function
             //find_coefficient_a0a1a2a3(3, 10, 20, 15, 15, 60, 60, 88, 09);
             //TestSpline();
@@ -993,7 +995,7 @@ namespace PivotCS
         /// <param name="lat"></param>
         /// <param name="lon"></param>
         public void ShowDistance_optimize(int index, double Roll, string drawString, double SizeOfText,
-            double lat, double lon)
+            double lat, double lon, double alt)
         {
             myMap.Children.Remove(Tb_ShowDistance[index]);
             Tb_ShowDistance[index].Text = drawString;
@@ -1011,6 +1013,7 @@ namespace PivotCS
 
                 Latitude = lat,
                 Longitude = lon,
+                Altitude = alt
             });
             //myMap.Children.Add(bitmapImage);
             //Đặt đúng vị trí
@@ -1061,13 +1064,13 @@ namespace PivotCS
         /// <param name="lon1"></param>
         /// <param name="lat2"></param>
         /// <param name="lon2"></param>
-        void Map_DrawLine_2D(double lat1, double lon1,
+        void Map_DrawLine_2D(double lat1, double lon1, double alt,
         double lat2, double lon2)
         {
 
             //myMap.MapElements.Remove(mapPolyline);
             polylineHereToDentination.Path = new Geopath(new List<BasicGeoposition>() {
-                new BasicGeoposition() {Latitude = lat1, Longitude = lon1},
+                new BasicGeoposition() {Latitude = lat1, Longitude = lon1, Altitude = alt},
                 //San Bay Tan Son Nhat: dLatDentination, dLonDentination
                 new BasicGeoposition() {Latitude = lat2, Longitude = lon2},
             });
@@ -1302,7 +1305,7 @@ namespace PivotCS
                         ShowSpeed_Alt_Position();
 
                         if (Data.Speed != null)
-                            if ((Convert.ToDouble(Data.Speed) < 30) && (Convert.ToDouble(Data.Pitch) > 300))
+                            if ((Convert.ToDouble(Data.Speed) < 15) && (Convert.ToDouble(Data.Pitch) > 300))
                             {
                                 try
                                 {
@@ -1558,7 +1561,7 @@ namespace PivotCS
                     //Ngay 21/1/2016 Show Data
                     //ShowDistance(0, temp_angle + 90, dDistanToTaget.ToString() + " Meter", 30 * myMap.ZoomLevel / 22, dLatGol, dLonGol, 1);//Purple
                     //**********optimize 6/3/2016
-                    ShowDistance_optimize(0, angle_position_of_flight_to_des + 90, dDistanToTaget.ToString() + " Meter", 50 * myMap.ZoomLevel / 22, dLatGol, dLonGol);//Purple
+                    ShowDistance_optimize(0, angle_position_of_flight_to_des + 90, dDistanToTaget.ToString() + " Meter", 50 * myMap.ZoomLevel / 22, dLatGol, dLonGol, Convert.ToDouble(Data.Altitude));//Purple
 
                 }
                 if (bSetup)
@@ -1652,7 +1655,7 @@ namespace PivotCS
             tab_display.Children.Add(tb_Position);
 
             //thu bản đồ lại
-            myMap.Width = screenWidth - Width;
+            myMap.Width = screenWidth - Width - 44;
             myMap.Margin = new Windows.UI.Xaml.Thickness(Width, 0, 0, 0);
             //move tblock_LatAndLon to bottom
             //show latitude and lontitude in bottom on screen
@@ -2950,7 +2953,7 @@ namespace PivotCS
             imageOfFlight.RenderTransform = new RotateTransform()
             {
 
-                Angle = dHeading,
+                Angle = 30,
                 CenterX = 10 * myMap.ZoomLevel / 2,
                 CenterY = 10 * myMap.ZoomLevel / 2 //The prop name maybe mistyped 
                 //CenterX = slider_test.Value * 10 / 2,
@@ -2998,7 +3001,7 @@ namespace PivotCS
             polylineHereToDentination.StrokeThickness = 2;
             polylineHereToDentination.StrokeDashed = false;//nét liền
 
-            Map_DrawLine_2D(lat, lon, 10.818345, 106.658897);
+            Map_DrawLine_2D(lat, lon, 30, 10.818345, 106.658897);
             if (old_Lat != 0.0)//Vì lúc đầu chưa có dữ liệu nên k hiện máy bay
             {
                 //Windows.UI.Xaml.Controls.Maps.MapPolyline mapPolyline = new Windows.UI.Xaml.Controls.Maps.MapPolyline();
@@ -3066,8 +3069,8 @@ namespace PivotCS
             imageOfFlight.RenderTransform = new RotateTransform()
             {
 
-                Angle = dHeading - myMap.Heading,
-                //Angle = 0,
+                //Angle = dHeading - myMap.Heading,
+                Angle = 0,
                 CenterX = 4 * myMap.ZoomLevel / 2,
                 CenterY = 4 * myMap.ZoomLevel / 2 //The prop name maybe mistyped 
             };
@@ -3081,7 +3084,7 @@ namespace PivotCS
             {
                 Latitude = lat,
                 Longitude = lon,
-                //Altitude = 200.0
+                Altitude = alt
             });
             //myMap.Children.Add(bitmapImage);
             Windows.UI.Xaml.Controls.Maps.MapControl.SetLocation(imageOfFlight, Position);
@@ -3102,8 +3105,8 @@ namespace PivotCS
                     if (bConnectOk)
                     {
                         line_path_of_flight.Path = new Geopath(new List<BasicGeoposition>() {
-                        new BasicGeoposition() {Latitude = old_Lat, Longitude = old_Lon},
-                        new BasicGeoposition() {Latitude = lat, Longitude = lon}
+                        new BasicGeoposition() {Latitude = old_Lat, Longitude = old_Lon, Altitude = alt},
+                        new BasicGeoposition() {Latitude = lat, Longitude = lon, Altitude = alt}
                         });
 
                         myMap.MapElements.Add(line_path_of_flight);
@@ -3116,9 +3119,9 @@ namespace PivotCS
                         MapPolyline lineToRmove = new Windows.UI.Xaml.Controls.Maps.MapPolyline();
 
                         lineToRmove.Path = new Geopath(new List<BasicGeoposition>() {
-                            new BasicGeoposition() {Latitude = old_Lat, Longitude = old_Lon},
+                            new BasicGeoposition() {Latitude = old_Lat, Longitude = old_Lon, Altitude = alt},
                             //San Bay Tan Son Nhat
-                            new BasicGeoposition() {Latitude = lat, Longitude = lon}
+                            new BasicGeoposition() {Latitude = lat, Longitude = lon, Altitude = alt}
                             });
 
                         lineToRmove.StrokeColor = Colors.Red;
@@ -3146,7 +3149,7 @@ namespace PivotCS
                 //San bay tan son nhat:  dLatDentination, dLonDentination google map
 
                 myMap.MapElements.Remove(polylineHereToDentination);
-                Map_DrawLine_2D(lat, lon, dLatDentination, dLonDentination);
+                Map_DrawLine_2D(lat, lon, alt, dLatDentination, dLonDentination);
 
                 myMap.MapElements.Add(polylineHereToDentination);
             }
@@ -5803,6 +5806,7 @@ namespace PivotCS
                 {
                     Latitude = geo_from_utm.Latitude,
                     Longitude = geo_from_utm.Longitude,
+                    Altitude = 40
                 });
                 icon_tap_on_map.NormalizedAnchorPoint = new Point(0.5, 1.0);
                 icon_tap_on_map.Title = "Pos " + (++number_of_tap).ToString();

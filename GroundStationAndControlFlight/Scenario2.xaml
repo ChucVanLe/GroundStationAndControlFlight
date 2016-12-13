@@ -18,9 +18,10 @@
     xmlns:Maps="using:Windows.UI.Xaml.Controls.Maps"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:oxy="using:OxyPlot.Windows"
     mc:Ignorable="d">
-    <Page.Resources>
-        
-    </Page.Resources>
 
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <oxy:PlotView x:Name="plotView"/>
+    </Grid>
   </Page>

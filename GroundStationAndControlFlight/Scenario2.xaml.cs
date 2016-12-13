@@ -10,6 +10,10 @@
 //*********************************************************
 
 using Windows.UI.Xaml.Controls;
+using OxyPlot;
+using OxyPlot.Series;
+using System;
+using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -20,6 +24,17 @@ namespace PivotCS
         public Scenario2()
         {
             this.InitializeComponent();
+            //this.MyModel = new PlotModel { Title = "Example 1" };
+            //this.MyModel.Series.Add(new FunctionSeries(Math.Cos, 0, 10, 0.1, "cos(x)"));
+            plotView.Model = PlotModelDefine.ZeroCrossing();
+        }
+
+        //public PlotModel MyModel { get; private set; }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+
         }
     }
 }

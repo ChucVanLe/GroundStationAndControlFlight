@@ -40,7 +40,7 @@
         </VisualStateManager.VisualStateGroups>
         <SplitView x:Name="Splitter" IsPaneOpen="True" Grid.Column="1" Grid.ColumnSpan="2">
             <SplitView.Pane>
-                <RelativePanel Background="DarkGreen">
+                <RelativePanel Background="SaddleBrown">
                     <StackPanel x:Name="HeaderPanel" Orientation="Horizontal">
                         <Image x:Name="WindowsLogo" Stretch="None" Source="Assets/windows-sdk.png" Margin="0,15,0,0" />
                         <TextBlock x:Name="Header" Text="Tracking And Control Flight" Style="{StaticResource TagLineTextStyle}" Margin="0,15,0,0" />
