@@ -76,7 +76,7 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Maps;
-using Windows.Services.Maps;
+
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
@@ -88,6 +88,9 @@ using Windows.UI.Xaml.Shapes;
 using Accord.Math;//solve matrix
 //https://geoutility.codeplex.com/
 using GeoUtility.GeoSystem;//convert lat, lon to utm, utm to lat, lon
+using WinRTXamlToolkit.Input;
+using Windows.UI.Core;
+using Windows.System;
 //************************************************
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
@@ -153,7 +156,7 @@ namespace PivotCS
             this.DataContext = this;
             Dis_Setup();
             init_timer_check_reply_from_flight_no_start(1000);
-            
+
             //test function
             //find_coefficient_a0a1a2a3(3, 10, 20, 15, 15, 60, 60, 88, 09);
             //TestSpline();
@@ -171,9 +174,22 @@ namespace PivotCS
             //ToLatLon(7042000, 510000, "32V");
             //test();
 
-
+            Window.Current.CoreWindow.Dispatcher.AcceleratorKeyActivated += AcceleratorKeyActivated;
 
         }
+
+        private void AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
+        {
+            if (args.EventType.ToString().Contains("Down"))
+            {
+                if (args.VirtualKey == VirtualKey.Left)
+                    test_adjust_real_time--;
+                if (args.VirtualKey == VirtualKey.Right)
+                    test_adjust_real_time++;
+            }
+        }
+
+        int test_adjust_real_time = 50;
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
@@ -541,7 +557,7 @@ namespace PivotCS
                 // Configure serial settings
                 serialPort.WriteTimeout = TimeSpan.FromMilliseconds(1);
                 serialPort.ReadTimeout = TimeSpan.FromMilliseconds(1);
-                serialPort.BaudRate = 57600;
+                serialPort.BaudRate = Convert.ToUInt32(tb_baud_rate.Text);
                 serialPort.Parity = SerialParity.None;
                 serialPort.StopBits = SerialStopBitCount.One;
                 serialPort.DataBits = 8;
@@ -1685,10 +1701,13 @@ namespace PivotCS
             tab_display.Children.Add(tblock_Current_Timer);
             //move slider_AdjTime to bottom on screen
             slider_AdjTime.Margin = new Windows.UI.Xaml.Thickness(488, screenHeight - 50 - 58, 00, 00);
+            //slider_test.Margin = new Windows.UI.Xaml.Thickness(488, screenHeight - 50 - 78, 00, 00);
             tab_display.Children.Remove(slider_AdjTime);
             //tab_display.Children.Add(slider_AdjTime);
             tab_display.Children.Remove(ShowButton);
             tab_display.Children.Add(ShowButton);
+            //tab_display.Children.Remove(slider_test);
+            //tab_display.Children.Add(slider_test);
             //Disable play, Pause, Speed Lisbox when Open_File isn't selected
             //Disable play, Pause, Speed Lisbox when Open_File isn't selected
             bt_Play.IsEnabled = false;
@@ -4332,7 +4351,7 @@ namespace PivotCS
                 if (index == limitSpeed)
                 {
                     //ProcessData();
-                    await System.Threading.Tasks.Task.Delay(TimeSpan.FromMilliseconds(0.5));
+                    await System.Threading.Tasks.Task.Delay(TimeSpan.FromMilliseconds(test_adjust_real_time));
                     index = 0;
 
                 }
@@ -4407,6 +4426,9 @@ namespace PivotCS
             bt_Play.IsEnabled = true;
             bt_Pause.IsEnabled = true;
             bt_Speed.IsEnabled = true;
+            //test
+            //tab_display.Children.Remove(slider_test);
+            //tab_display.Children.Add(slider_test);
         }
 
         /// <summary>
@@ -4950,6 +4972,10 @@ namespace PivotCS
 
             tab_setting.Children.Remove(tblock_ConnectDivice);
             tab_setting.Children.Add(tblock_ConnectDivice);
+            tab_setting.Children.Remove(tblock_baud_rate);
+            tab_setting.Children.Add(tblock_baud_rate);
+            tab_setting.Children.Remove(tb_baud_rate);
+            tab_setting.Children.Add(tb_baud_rate);
             try
             {
                 lbox_postion_lon.Width = screenWidth - 44 - 1202;
@@ -5330,6 +5356,16 @@ namespace PivotCS
             ////Updata giá trí mới
             //old_lat_tap_on_map = lat;
             //old_lon_tap_on_map = lon;
+        }
+
+        private void tab_setting_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+
+        }
+
+        private void tab_display_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+
         }
 
         private bool _IsShiftPressed = false;
