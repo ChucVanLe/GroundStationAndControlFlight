@@ -4777,11 +4777,16 @@ namespace PivotCS
                     //                    + 'k' + lbox_postion_lon.Items[index_list_lon_lat].ToString();
                     //}
                     if (0 != utm_hexa_point[5, 0])
-                        for (int index_list_lon_lat = 0; index_list_lon_lat < utm_hexa_point.Length / 2; index_list_lon_lat++)
+                    {
+                        temp_lat_lon += 'v' + Math.Round(utm_hexa_point[0, 0], 1).ToString()//east_tap
+                                        + 'k' + Math.Round(utm_hexa_point[0, 1], 1).ToString();//north_tap
+                        for (int index_list_lon_lat = 1; index_list_lon_lat < utm_hexa_point.Length / 2; index_list_lon_lat++)
                         {
-                            temp_lat_lon += 'v' + Math.Round(utm_hexa_point[index_list_lon_lat, 0], 1).ToString()//east_tap
-                                            + 'k' + Math.Round(utm_hexa_point[index_list_lon_lat, 1], 1).ToString();//north_tap
+                            temp_lat_lon += 'v' + Math.Round(utm_hexa_point[index_list_lon_lat, 0] - utm_hexa_point[0, 0], 1).ToString()//east_tap
+                                            + 'k' + Math.Round(utm_hexa_point[index_list_lon_lat, 1] - utm_hexa_point[0, 1], 1).ToString();//north_tap
                         }
+                    }
+
                     Int32 checksum = 0;
                     data_need_tran = "4" + temp_lat_lon + "v,";
                     for (int i = 0; i < data_need_tran.Length; i++)
