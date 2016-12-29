@@ -360,7 +360,7 @@ namespace PivotCS
             //draw_hexagon_when_tap_on_map(tappedGeoPosition.Latitude, tappedGeoPosition.Longitude, Math.PI / 3, 100);
 
             //draw_hexagon_when_tap_on_map(tappedGeoPosition.Latitude, tappedGeoPosition.Longitude, (Convert.ToDouble(Data.Yaw) / 10) * Math.PI / 180, 100);
-            draw_hexagon_when_tap_on_map(dLatGol, dLonGol, (Convert.ToDouble(Data.Yaw) / 10) * Math.PI / 180, 40);
+
         }
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>
@@ -3088,8 +3088,8 @@ namespace PivotCS
             imageOfFlight.RenderTransform = new RotateTransform()
             {
 
-                //Angle = dHeading - myMap.Heading,
-                Angle = 0,
+                Angle = dHeading - myMap.Heading,
+                //Angle = 0,
                 CenterX = 4 * myMap.ZoomLevel / 2,
                 CenterY = 4 * myMap.ZoomLevel / 2 //The prop name maybe mistyped 
             };
@@ -4130,8 +4130,8 @@ namespace PivotCS
             myMap.Children.Remove(img_AtLatAndLon);
 
             //Edit size of image
-            img_AtLatAndLon.Height = 5 * myMap.ZoomLevel;
-            img_AtLatAndLon.Width = 5 * myMap.ZoomLevel;
+            img_AtLatAndLon.Height = 4 * myMap.ZoomLevel;
+            img_AtLatAndLon.Width = 4 * myMap.ZoomLevel;
 
             //img_rotate.RenderTransform
             img_AtLatAndLon.Opacity = 0.7;
@@ -4351,7 +4351,7 @@ namespace PivotCS
                 if (index == limitSpeed)
                 {
                     //ProcessData();
-                    await System.Threading.Tasks.Task.Delay(TimeSpan.FromMilliseconds(test_adjust_real_time));
+                    await System.Threading.Tasks.Task.Delay(TimeSpan.FromMilliseconds(10));
                     index = 0;
 
                 }
@@ -4764,6 +4764,7 @@ namespace PivotCS
 
         private async void bt_Upload_Path_Click(object sender, RoutedEventArgs e)
         {
+            draw_hexagon_when_tap_on_map(dLatGol, dLonGol, (Convert.ToDouble(Data.Yaw) / 10) * Math.PI / 180, Convert.ToDouble(tb_distance_2_point.Text));
             try
             {
                 if (serialPort != null)
@@ -5372,6 +5373,7 @@ namespace PivotCS
         {
 
         }
+
 
         private bool _IsShiftPressed = false;
         private bool _IsPointerPressed = false;
